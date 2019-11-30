@@ -6,11 +6,11 @@ physics: {
     default: 'arcade',
     arcade: {
         gravity: {y: 900},
-        debug: false
+        debug: true
     }
 },
  //scene: [mainScene, main2Scene, storyScene, story2Scene, level1]
- scene: [mainScene,scene2,scene3,level1,level2,level3]
+ scene: [mainScene, scene2, scene3, level1, gameOver1, level2, gameOver2, level3, gameOver3, gameFinish]
 };
 
 let game = new Phaser.Game(config);

@@ -13,11 +13,14 @@ preload() {
 this.load.tilemapTiledJSON('map1', 'assets/level1.json');
 
 this.load.spritesheet('tiles', 'assets/ground.png', {frameWidth: 64, frameHeight: 64});
+// this.load.spritesheet('floatingCupcake', 'assets/floatingCupcake.png', { frameWidth: 32, frameHeight: 32 });
 
-this.load.image('cupcake', 'assets/cupcake.png');
-this.load.image('badcupcake', 'assets/badcupcake.png');  
+// this.load.image('cupcake', 'assets/cupcake.png');
+// this.load.image('badcupcake', 'assets/badcupcake.png');  
 
  this.load.atlas('coco', 'assets/coco.png', 'assets/coco.json');
+ this.load.spritesheet('cupcake', 'assets/cupcake.png', { frameWidth: 50, frameHeight: 100 });
+ this.load.spritesheet('badcupcake', 'assets/badcupcake.png', { frameWidth: 50, frameHeight: 100 });
 
  this.load.audio('meow1', 'assets/meow1.mp3');
 
@@ -29,6 +32,7 @@ this.load.image('badcupcake', 'assets/badcupcake.png');
 
 create() {
 
+    //background
     this.bg_b = this.add.tileSprite(0, 0, game.config.width, 0, "bg_b");
     this.bg_b.setOrigin(0, 0);
     this.bg_b.setScrollFactor(0);
@@ -52,24 +56,10 @@ create() {
     // Set starting and ending position using object names in tiles
     this.startPoint = this.map1.findObject("ObjectLayer", obj => obj.name === "startPoint");
     this.endPoint = this.map1.findObject("ObjectLayer", obj => obj.name === "endPoint");
-    this.add.image(this.endPoint.x, this.endPoint.y, 'endPoint');
-
-    // Make it global variable for troubleshooting
-    // window.startPoint = this.startPoint;
-    // window.endPoint = this.endPoint;
-
-    // platformLayer = map.createDynamicLayer('pathLayer', groundTiles, 0, 0);
+    this.add.image(this.endPoint.x+250, this.endPoint.y, 'endPoint');
+    
     // audio(meow1)
     this.meow1Snd = this.sound.add('meow1');
-    
-    //  //this.input.once('pointerdown', function(){
-    //     var spaceDown = this.input.keyboard.addKey('SPACE');
-            
-    //     spaceDown.on('down', function(){
-    //     console.log("Spacebar pressed, goto main2Scene");
-    //     this.scene.stop("mainScene");
-    //     this.scene.start("scene2");
-    //     }, this );
     
     // create the player sprite    
      this.player = this.physics.add.sprite(200, 200, 'coco');
@@ -108,37 +98,86 @@ create() {
                 frameRate: 2,
                 repeat: -1
             });
+
+            // Animate Cupcake
+            this.anims.create({
+                key: 'cupcakeAnim',
+                frames: this.anims.generateFrameNumbers('cupcake', { start: 0, end: 1 }),
+                frameRate: 2,
+                repeat: -1
+            });
+
+            // Animate bad cupcake
+            this.anims.create({
+                key: 'badcakeAnim',
+                frames: this.anims.generateFrameNumbers('badcupcake', { start: 0, end: 1 }),
+                frameRate: 2,
+                repeat: -1
+            });
+
+            
+// create cupcake physics group
+  this.food1 = this.physics.add.group();
+  this.food2 = this.physics.add.group();
+
+// Add members to this.food1 group with different animation
+  //this.food1.create(400, 0, 'cupcake').setScale(2).play('cupcakeAnim').setSize(this.food1.width*2, this.food1.height*2);
+  //this.food2.create(600, 0, 'badcupcake').setScale(1).play('badcakeAnim');
+
+
+  this.food1 = this.physics.add.group({
+    key: 'cupcakeAnim',
+    repeat: 10,
+    setXY: { x: 400, y: 0, stepX: 400 }
+
+});
+
+this.food2 = this.physics.add.group({
+    key: 'badcakeAnim',
+    repeat: 10,
+    setXY: { x: 600, y: 0, stepX: 400 }
+
+});
+
+// iterate all the members in the group and play animation
+this.food1.children.iterate(food1c => {
+    food1c.play('cupcakeAnim')
+    food1c.setSize(food1c.width, food1c.height*0.7)
+})
+
+this.food2.children.iterate(food2c => {
+    food2c.play('badcakeAnim')
+    food2c.setSize(food2c.width, food2c.height*0.7)
+})
+
     
             
         // Create the cursor keys
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.space = this.input.keyboard.addKey('SPACE');
     
         
-        this.food1 = this.physics.add.group({
-            key: 'cupcake',
-            repeat: 10,
-            setXY: { x: 400, y: 0, stepX: 600 }
+        
     
-        });
+        // this.food1.children.iterate(function (child) {
+        //     child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
     
-        this.food1.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
+        // });
     
-        });
+        // this.food2 = this.physics.add.group({
+        //     key: 'badcupcake',
+        //     repeat: 6,
+        //     setXY: { x: 700, y: 0, stepX: 600 }
     
-        this. food2 = this.physics.add.group({
-            key: 'badcupcake',
-            repeat: 6,
-            setXY: { x: 700, y: 0, stepX: 600 }
+        // });
     
-        });
+        // this.food2.children.iterate(function (child) {
+        //     child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
     
-        this.food2.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
+        // });
     
-        });
-    
-        this.badfood = this.physics.add.group();
+        // this.badfood = this.physics.add.group();
+        
     
     
     // Set Collisions
@@ -148,22 +187,20 @@ create() {
     this.physics.world.bounds.width = this.groundLayer.width;
     this.physics.world.bounds.height = this.groundLayer.height;
     
-    
+    this.physics.add.collider(this.groundLayer, this.food1);
     this.physics.add.collider(this.player, this.groundLayer);
-    this.physics.add.collider(this.food1, this.groundLayer);
-    this.physics.add.collider(this.player, this.badfood);
+    this.physics.add.collider(this.player, this.food2);
     this.physics.add.overlap(this.player, this.food1, this.collectfood1, null, this);
-    
     this.physics.add.collider(this.food2, this.groundLayer);
     this.physics.add.collider(this.player, this.food2, this.hitfood2, null, this);
 
-    this.physics.add.overlap(this.player, this.food1,this.collectFood1, null, this );
+    // this.physics.add.overlap(this.player, this.food1,this.collectfood1, null, this );
     
     this.player.setCollideWorldBounds(true); // don't go out of the map
     
     // player will collide with the level tiles
     this.physics.add.collider(this.groundLayer, this.player);
-    
+
     // set bounds so the camera won't go outside the game world
     this.cameras.main.setBounds(0, 0, this.map1.widthInPixels, this.map1.heightInPixels);
     // make the camera follow the player
@@ -180,13 +217,12 @@ collectfood1(player, food1) {
 
 hitfood2(player,food2) {
     food2.disableBody(true, true);
-    console.log('Hit food2, restart game');
+    // console.log('Hit food2, restart game');
     // this.cameras.main.shake(500);
     // delay 1 sec
     this.time.delayedCall(100,function() {
 
-        this.scene.restart("level1");
-//        this.scene.start("gameoverScene");
+       this.scene.start("gameOver1");
     },[], this);
 
 } //end of create
@@ -213,7 +249,7 @@ else if (this.cursors.right.isDown)
     this.player.flipX = false; // use the original sprite looking to the right
     
 } 
-else if (this.cursors.up.isDown && this.player.body.onFloor())
+else if (this.space.isDown && this.player.body)
 {
     // down key
     this.player.body.setVelocityY(-600); 

@@ -14,8 +14,11 @@ this.load.tilemapTiledJSON('map2', 'assets/level2.json');
 
 this.load.spritesheet('tiles', 'assets/ground.png', {frameWidth: 64, frameHeight: 64});
 
-this.load.image('donut', 'assets/donut.png');
-this.load.image('baddonut', 'assets/baddonut.png');  
+this.load.spritesheet('donut', 'assets/donut.png', { frameWidth: 60, frameHeight: 100 });
+this.load.spritesheet('baddonut', 'assets/baddonut.png', { frameWidth: 60, frameHeight: 100 });
+
+// this.load.image('donut', 'assets/donut.png');
+// this.load.image('baddonut', 'assets/baddonut.png');  
 
  this.load.atlas('coco', 'assets/coco.png', 'assets/coco.json');
 
@@ -53,7 +56,7 @@ create() {
     // Set starting and ending position using object names in tiles
     this.startPoint2 = this.map.findObject("ObjectLayer", obj => obj.name === "startPoint");
     this.endPoint2 = this.map.findObject("ObjectLayer", obj => obj.name === "endPoint");
-    this.add.image(this.endPoint2.x, this.endPoint2.y, 'endPoint');
+    this.add.image(this.endPoint2.x+250, this.endPoint2.y, 'endPoint');
 
     // Make it global variable for troubleshooting
     // window.startPoint = this.startPoint;
@@ -93,7 +96,7 @@ create() {
             this.anims.create({
                 key: 'idle',
                 frames: [{key: 'coco', frame: 'coco_01'}],
-                frameRate: 6,
+                frameRate: 50,
             });
     
             this.anims.create({
@@ -109,37 +112,83 @@ create() {
                 frameRate: 2,
                 repeat: -1
             });
+
+            // Animate Donut
+            this.anims.create({
+                key: 'donutAnim',
+                frames: this.anims.generateFrameNumbers('donut', { start: 0, end: 1 }),
+                frameRate: 2,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'baddonutAnim',
+                frames: this.anims.generateFrameNumbers('baddonut', { start: 0, end: 1 }),
+                frameRate: 2,
+                repeat: -1
+            });
     
-            
+         
+// create cupcake physics group
+this.food3 = this.physics.add.group();
+this.food4 = this.physics.add.group();
+
+this.food3 = this.physics.add.group({
+    key: 'donutAnim',
+    repeat: 14,
+    setXY: { x: 400, y: 0, stepX: 400 }
+
+});
+
+this.food4 = this.physics.add.group({
+    key: 'baddonutAnim',
+    repeat: 12,
+    setXY: { x: 600, y: 0, stepX: 400 }
+
+});
+
+// iterate all the members in the group and play animation
+this.food3.children.iterate(food3c => {
+    food3c.play('donutAnim')
+    food3c.setSize(food3c.width, food3c.height*0.7)
+})
+
+this.food4.children.iterate(food4c => {
+    food4c.play('baddonutAnim')
+    food4c.setSize(food4c.width, food4c.height*0.7)
+})
+
+
         // Create the cursor keys
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.space = this.input.keyboard.addKey('SPACE');
     
         
-        this.donut = this.physics.add.group({
-            key: 'donut',
-            repeat: 8,
-            setXY: { x: 400, y: 0, stepX: 620 }
+        // this.donut = this.physics.add.group({
+        //     key: 'donut',
+        //     repeat: 8,
+        //     setXY: { x: 400, y: 0, stepX: 620 }
     
-        });
+        // });
     
-        this.donut.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
+        // this.donut.children.iterate(function (child) {
+        //     child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
     
-        });
+        // });
     
-        this.food3 = this.physics.add.group({
-            key: 'baddonut',
-            repeat:8,
-            setXY: { x: 700, y: 0, stepX: 620 }
+        // this.food3 = this.physics.add.group({
+        //     key: 'baddonut',
+        //     repeat:8,
+        //     setXY: { x: 700, y: 0, stepX: 620 }
     
-        });
+        // });
     
-        this.food3.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
+        // this.food3.children.iterate(function (child) {
+        //     child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
     
-        });
+        // });
     
-        this.baddonut = this.physics.add.group();
+        // this.baddonut = this.physics.add.group();
     
     
     // Set Collisions
@@ -151,14 +200,13 @@ create() {
     
     
     this.physics.add.collider(this.player, this.groundLayer);
-    this.physics.add.collider(this.donut, this.groundLayer);
-    this.physics.add.collider(this.player, this.baddonut);
-    this.physics.add.overlap(this.player, this.donut, this.collectdonut, null, this);
-    
-    this.physics.add.collider(this.food3, this.groundLayer);
-    this.physics.add.collider(this.player, this.food3, this.hitfood3, null, this);
+    this.physics.add.collider(this.groundLayer, this.food3);
+    this.physics.add.collider(this.player, this.food4);
+    this.physics.add.overlap(this.player, this.food3, this.collectfood3, null, this);
+    this.physics.add.collider(this.food4, this.groundLayer);
+    this.physics.add.collider(this.player, this.food4, this.hitfood4, null, this);
 
-    this.physics.add.overlap(this.player, this.donut,this.collectdonut, null, this );
+    // this.physics.add.overlap(this.player, this.donut,this.collectdonut, null, this );
     
     this.player.setCollideWorldBounds(true); // don't go out of the map
     
@@ -171,23 +219,22 @@ create() {
     this.cameras.main.startFollow(this.player);    
 
 }
-collectdonut(player, donut) {
-    donut.disableBody(true, true);
-    this.bonusCount += 3; 
+collectfood3(player, food3) {
+    food3.disableBody(true, true);
+    this.bonusCount += 5; 
     console.log(this.bonusCount);
     this.bonusText.setText(this.bonusCount); // set the text to show the current score
     return false;
 }
 
-hitfood3(player,food3) {
-    food3.disableBody(true, true);
-    console.log('Hit food3, restart game');
+hitfood4(player,food4) {
+    food4.disableBody(true, true);
+    // console.log('Hit food4, restart game');
     // this.cameras.main.shake(500);
     // delay 1 sec
     this.time.delayedCall(100,function() {
 
-        this.scene.restart("level2");
-//        this.scene.start("gameoverScene");
+    this.scene.start("gameOver2");
     },[], this);
 
 } //end of create
@@ -214,7 +261,7 @@ else if (this.cursors.right.isDown)
     this.player.flipX = false; // use the original sprite looking to the right
     
 } 
-else if (this.cursors.up.isDown && this.player.body.onFloor())
+else if (this.space.isDown && this.player.body)
 {
     // down key
     this.player.body.setVelocityY(-600); 

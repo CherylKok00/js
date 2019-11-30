@@ -14,8 +14,11 @@ this.load.tilemapTiledJSON('map3', 'assets/level3.json');
 
 this.load.spritesheet('tiles', 'assets/ground.png', {frameWidth: 64, frameHeight: 64});
 
-this.load.image('coffee', 'assets/coffee.png');
-this.load.image('badcoffee', 'assets/badcoffee.png');  
+this.load.spritesheet('coffee', 'assets/coffee.png', { frameWidth: 50, frameHeight: 100 });
+this.load.spritesheet('badcoffee', 'assets/badcoffee.png', { frameWidth: 50, frameHeight: 100 });
+
+// this.load.image('coffee', 'assets/coffee.png');
+// this.load.image('badcoffee', 'assets/badcoffee.png');  
 
  this.load.atlas('coco', 'assets/coco.png', 'assets/coco.json');
 
@@ -53,7 +56,7 @@ create() {
     // Set starting and ending position using object names in tiles
     this.startPoint3 = this.map.findObject("ObjectLayer", obj => obj.name === "startPoint");
     this.endPoint3 = this.map.findObject("ObjectLayer", obj => obj.name === "endPoint");
-    this.add.image(this.endPoint3.x, this.endPoint3.y, 'endPoint');
+    this.add.image(this.endPoint3.x+350, this.endPoint3.y, 'endPoint');
 
     // Make it global variable for troubleshooting
     // window.startPoint = this.startPoint;
@@ -109,37 +112,82 @@ create() {
                 frameRate: 2,
                 repeat: -1
             });
+
+            // Animate coffee
+            this.anims.create({
+                key: 'coffeeAnim',
+                frames: this.anims.generateFrameNumbers('coffee', { start: 0, end: 1 }),
+                frameRate: 2,
+                repeat: -1
+            });
+
+            this.anims.create({
+                key: 'badcoffeeAnim',
+                frames: this.anims.generateFrameNumbers('badcoffee', { start: 0, end: 1 }),
+                frameRate: 2,
+                repeat: -1
+            });
+
+// create cupcake physics group
+this.food5 = this.physics.add.group();
+this.food6 = this.physics.add.group();
+
+this.food5 = this.physics.add.group({
+    key: 'coffeeAnim',
+    repeat: 16,
+    setXY: { x: 600, y: 0, stepX: 400 }
+
+});
+
+this.food6 = this.physics.add.group({
+    key: 'badcoffeeAnim',
+    repeat: 16,
+    setXY: { x: 400, y: 0, stepX: 400 }
+
+});
+
+// iterate all the members in the group and play animation
+this.food5.children.iterate(food5c => {
+    food5c.play('coffeeAnim')
+    food5c.setSize(food5c.width, food5c.height*0.7)
+})
+
+this.food6.children.iterate(food6c => {
+    food6c.play('badcoffeeAnim')
+    food6c.setSize(food6c.width, food6c.height*0.7)
+})
     
             
         // Create the cursor keys
         this.cursors = this.input.keyboard.createCursorKeys();
+        this.space = this.input.keyboard.addKey('SPACE');
     
         
-        this.coffee = this.physics.add.group({
-            key: 'coffee',
-            repeat: 16,
-            setXY: { x: 600, y: 0, stepX: 400 }
+        // this.coffee = this.physics.add.group({
+        //     key: 'coffee',
+        //     repeat: 16,
+        //     setXY: { x: 600, y: 0, stepX: 400 }
     
-        });
+        // });
     
-        this.coffee.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
+        // this.coffee.children.iterate(function (child) {
+        //     child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
     
-        });
+        // });
     
-        this.food4 = this.physics.add.group({
-            key: 'badcoffee',
-            repeat: 16,
-            setXY: { x: 400, y: 0, stepX: 400 }
+        // this.food4 = this.physics.add.group({
+        //     key: 'badcoffee',
+        //     repeat: 16,
+        //     setXY: { x: 400, y: 0, stepX: 400 }
     
-        });
+        // });
     
-        this.food4.children.iterate(function (child) {
-            child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
+        // this.food4.children.iterate(function (child) {
+        //     child.setBounceY(Phaser.Math.FloatBetween(0.2, 0.2));
     
-        });
+        // });
     
-        this.badcoffee = this.physics.add.group();
+        // this.badcoffee = this.physics.add.group();
     
     
     // Set Collisions
@@ -151,12 +199,12 @@ create() {
     
     
     this.physics.add.collider(this.player, this.groundLayer);
-    this.physics.add.collider(this.coffee, this.groundLayer);
-    this.physics.add.collider(this.player, this.badcoffee);
-    this.physics.add.overlap(this.player, this.coffee, this.collectcoffee, null, this);
-    
-    this.physics.add.collider(this.food4, this.groundLayer);
-    this.physics.add.collider(this.player, this.food4, this.hitfood4, null, this);
+    this.physics.add.collider(this.groundLayer, this.food5);
+    this.physics.add.collider(this.player, this.food6);
+    this.physics.add.overlap(this.player, this.food5, this.collectfood5, null, this);
+    this.physics.add.collider(this.food6, this.groundLayer);
+    this.physics.add.collider(this.player, this.food6, this.hitfood6, null, this);
+
 
     // this.physics.add.overlap(this.player, this.coffee,this.collectcoffee, null, this );
     
@@ -171,23 +219,22 @@ create() {
     this.cameras.main.startFollow(this.player);    
 
 }
-collectcoffee(player, coffee) {
-    coffee.disableBody(true, true);
-    this.bonusCount += 3; 
+collectfood5(player, food5) {
+    food5.disableBody(true, true);
+    this.bonusCount += 7; 
     console.log(this.bonusCount);
     this.bonusText.setText(this.bonusCount); // set the text to show the current score
     return false;
 }
 
-hitfood4(player,food4) {
-    food4.disableBody(true, true);
-    console.log('Hit food4, restart game');
+hitfood6(player,food6) {
+    food6.disableBody(true, true);
+    // console.log('Hit food4, restart game');
     // this.cameras.main.shake(500);
     // delay 1 sec
     this.time.delayedCall(100,function() {
 
-        this.scene.restart("level3");
-//        this.scene.start("gameoverScene");
+       this.scene.start("gameOver3");
     },[], this);
 
 } //end of create
@@ -214,7 +261,7 @@ else if (this.cursors.right.isDown)
     this.player.flipX = false; // use the original sprite looking to the right
     
 } 
-else if (this.cursors.up.isDown && this.player.body.onFloor())
+else if (this.space.isDown && this.player.body)
 {
     // down key
     this.player.body.setVelocityY(-700); 
@@ -235,7 +282,7 @@ else if (this.cursors.up.isDown && this.player.body.onFloor())
     //this.cameras.main.shake(500);
     this.time.delayedCall(1000,function() {
         this.scene.stop("level3");
-        this.scene.start("mainScene");
+        this.scene.start("gameFinish");
     },[], this);
 
 }
