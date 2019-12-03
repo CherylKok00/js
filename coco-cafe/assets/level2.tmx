@@ -17,7 +17,7 @@
   </data>
  </layer>
  <objectgroup id="11" name="ObjectLayer">
-  <object id="17" name="endPoint" x="6029.33" y="405">
+  <object id="17" name="endPoint" x="6030.66" y="401">
    <point/>
   </object>
   <object id="18" name="startPoint" x="156" y="433">

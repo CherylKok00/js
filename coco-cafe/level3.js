@@ -22,23 +22,37 @@ this.load.spritesheet('badcoffee', 'assets/badcoffee.png', { frameWidth: 50, fra
 
  this.load.atlas('coco', 'assets/coco.png', 'assets/coco.json');
 
- this.load.audio('meow1', 'assets/meow1.mp3');
+ this.load.audio('bgm3', 'assets/level3bgm.mp3');
 
- this.load.image('bg3', 'assets/BGgreen.png');
- this.load.image('bg4', 'assets/greenBG.png');
+ this.load.audio('jumping', 'assets/jump2.mp3');
+ this.load.audio('collect', 'assets/collect1.mp3');
+ this.load.audio('loseGame', 'assets/lose1.mp3');
+ this.load.audio('complete', 'assets/success.mp3');
+
+ this.load.image('bg4', 'assets/nightBG.png');
+ this.load.image('bg5', 'assets/nightBG2.png');
+ this.load.image('bg6', 'assets/nightBG3.png');
 
  this.load.image('endPoint', 'assets/endPoint.png');
 }
 
 create() {
 
-    this.bg4 = this.add.tileSprite(0, 0, game.config.width, 0, "bg4");
+    this.bg4 = this.add.tileSprite(0, 0, game.config.width, game.config.height , "bg4");
     this.bg4.setOrigin(0, 0);
     this.bg4.setScrollFactor(0);
-    
-    this.bg3 = this.add.tileSprite(0, 100, game.config.width, game.config.height , "bg3");
-    this.bg3.setOrigin(0, 0);
-    this.bg3.setScrollFactor(0);
+
+    this.bg5 = this.add.tileSprite(0, 50, game.config.width, 0, "bg5");
+    this.bg5.setOrigin(0, 0);
+    this.bg5.setScrollFactor(0);
+
+    this.bg6 = this.add.tileSprite(0, 250, game.config.width, game.config.height , "bg6");
+    this.bg6.setOrigin(0, 0);
+    this.bg6.setScrollFactor(0);
+
+    this.bgm3Snd = this.sound.add('bgm3');
+    this.bgm3Snd.loop = true;
+    this.bgm3Snd.play({volume: 0.4});
 
     // this.endPoint.setOrigin(4836, 440);
     
@@ -63,8 +77,11 @@ create() {
     // window.endPoint = this.endPoint;
 
     // platformLayer = map.createDynamicLayer('pathLayer', groundTiles, 0, 0);
-    // audio(meow1)
-    this.meow1Snd = this.sound.add('meow1');
+    // audio(sfx)
+    this.jump2Snd = this.sound.add('jumping');
+    this.collect1Snd = this.sound.add('collect');
+    this.lose1Snd = this.sound.add('loseGame');
+    this.successSnd = this.sound.add('complete');
     
     //  //this.input.once('pointerdown', function(){
     //     var spaceDown = this.input.keyboard.addKey('SPACE');
@@ -85,10 +102,10 @@ create() {
     this.player.setPosition(200, 460);
      window.player = this.player
     
-            this.bonusText = this.add.text(30, 30, '0', {
-            fontSize: '20px',
-            fill: '#000000'
-    });
+//display scoring
+this.bonusText = this.add.text(30, 30, '0', { font: ' 20px Helvetica', fill: '#ffffff',
+});
+
             // fix the text to the camera
             this.bonusText.setScrollFactor(0);
             this.bonusText.visible = true;
@@ -200,7 +217,7 @@ this.food6.children.iterate(food6c => {
     
     this.physics.add.collider(this.player, this.groundLayer);
     this.physics.add.collider(this.groundLayer, this.food5);
-    this.physics.add.collider(this.player, this.food6);
+    // this.physics.add.collider(this.player, this.food6);
     this.physics.add.overlap(this.player, this.food5, this.collectfood5, null, this);
     this.physics.add.collider(this.food6, this.groundLayer);
     this.physics.add.collider(this.player, this.food6, this.hitfood6, null, this);
@@ -222,6 +239,7 @@ this.food6.children.iterate(food6c => {
 collectfood5(player, food5) {
     food5.disableBody(true, true);
     this.bonusCount += 7; 
+    this.collect1Snd.play();
     console.log(this.bonusCount);
     this.bonusText.setText(this.bonusCount); // set the text to show the current score
     return false;
@@ -233,7 +251,9 @@ hitfood6(player,food6) {
     // this.cameras.main.shake(500);
     // delay 1 sec
     this.time.delayedCall(100,function() {
-
+        this.bonusCount = 0
+        this.bgm3Snd.stop();
+        this.lose1Snd.play();
        this.scene.start("gameOver3");
     },[], this);
 
@@ -264,9 +284,9 @@ else if (this.cursors.right.isDown)
 else if (this.space.isDown && this.player.body)
 {
     // down key
-    this.player.body.setVelocityY(-700); 
+    this.player.body.setVelocityY(-500); 
     this.player.anims.play('cocojump', true);   
-    this.meow1Snd.play();
+    this.jump2Snd.play();
 
 } else if ( this.player.body.onFloor() ) {
     // Not moving
@@ -277,18 +297,20 @@ else if (this.space.isDown && this.player.body)
  // Check for reaching endPoint object
  if ( this.player.x >= this.endPoint3.x && this.player.y >= this.endPoint3.y ) {
     console.log('Reached End, goto level3');
-    // this.bgmSnd.stop();
-    // this.apSnd.play();
+    this.bgm3Snd.loop = false;
+    this.bgm3Snd.stop();
     //this.cameras.main.shake(500);
     this.time.delayedCall(1000,function() {
         this.scene.stop("level3");
+        this.successSnd.play();
         this.scene.start("gameFinish");
     },[], this);
 
 }
 
-this.bg3.tilePositionX = this.cameras.main.scrollX*.2;
 this.bg4.tilePositionX = this.cameras.main.scrollX*.2;
+this.bg5.tilePositionX = this.cameras.main.scrollX*.5;
+this.bg6.tilePositionX = this.cameras.main.scrollX*.8;
 } // end of update
 
 

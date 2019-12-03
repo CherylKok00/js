@@ -8,6 +8,7 @@ constructor ()
 preload() {
 //mainScene
 this.load.image('main','assets/mainScene.png');
+
 } //end of preload
 
 create () {
@@ -20,9 +21,9 @@ create () {
         var spaceDown = this.input.keyboard.addKey('SPACE');
             
         spaceDown.on('down', function(){
-        console.log("Spacebar pressed, goto scene2");
+        console.log("Spacebar pressed, goto storyScene");
         this.scene.stop("mainScene");
-        this.scene.start("scene2");
+        this.scene.start("storyScene");
         }, this );
 
         var key1 = this.input.keyboard.addKey(49);

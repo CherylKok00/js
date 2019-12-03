@@ -14,6 +14,7 @@ class gameOver1 extends Phaser.Scene {
 
         this.add.image(0, 0, 'gameOver').setOrigin(0, 0);
         
+        
         console.log("This is gameOver1");
 
         //this.input.once('pointerdown', function(){
