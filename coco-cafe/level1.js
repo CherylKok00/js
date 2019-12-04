@@ -54,6 +54,7 @@ create() {
 
     this.bgmSnd = this.sound.add('bgm');
     this.bgmSnd.loop = true;
+    this.bgmSnd.stop();
     this.bgmSnd.play({volume: 0.2});
 
     // this.endPoint.setOrigin(4836, 440);
