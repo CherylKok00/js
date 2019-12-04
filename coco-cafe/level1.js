@@ -244,6 +244,7 @@ hitfood2(player,food2) {
     // delay 1 sec  
     this.time.delayedCall(100,function() {
     this.bonusCount = 0
+    this.bgmSnd.loop = false
     this.bgmSnd.stop();
     this.lose1Snd.play();
     this.scene.start("gameOver1");
