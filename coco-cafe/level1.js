@@ -52,9 +52,10 @@ create() {
     this.bg_f2.setOrigin(0, 0);
     this.bg_f2.setScrollFactor(0);
 
+    this.bgmSnd.loop = false;
+    this.bgmSnd.stop();
     this.bgmSnd = this.sound.add('bgm');
     this.bgmSnd.loop = true;
-    this.bgmSnd.stop();
     this.bgmSnd.play({volume: 0.2});
 
     // this.endPoint.setOrigin(4836, 440);
