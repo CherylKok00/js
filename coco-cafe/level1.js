@@ -242,11 +242,12 @@ hitfood2(player,food2) {
     // console.log('Hit food2, restart game');
     // this.cameras.main.shake(500);
     // delay 1 sec  
-    this.time.delayedCall(100,function() {
-    this.bonusCount = 0
-    this.bgmSnd.loop = false
+     this.bgmSnd.loop = false
     this.bgmSnd.stop();
     this.lose1Snd.play();
+    
+    this.time.delayedCall(500,function() {
+    this.bonusCount = 0
     this.scene.start("gameOver1");
        
     },[], this);
